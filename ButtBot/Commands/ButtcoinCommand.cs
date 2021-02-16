@@ -1,4 +1,3 @@
-using System;
 using System.Threading.Tasks;
 using ButtBot.Services;
 using ButtBot.Utils;

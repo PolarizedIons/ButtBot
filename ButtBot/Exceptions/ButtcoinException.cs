@@ -1,5 +1,4 @@
 using System;
-using ButtBot.Services;
 
 namespace ButtBot.Exceptions
 {

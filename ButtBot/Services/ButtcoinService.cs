@@ -1,14 +1,10 @@
-using System.Linq;
 using System.Threading.Tasks;
-using System.Transactions;
 using ButtBot.Database;
 using ButtBot.Database.Models;
 using ButtBot.Exceptions;
 using ButtBot.Extentions;
 using Discord;
-using Discord.Net;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Serilog;
 
 namespace ButtBot.Services

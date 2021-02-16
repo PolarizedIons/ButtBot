@@ -1,7 +1,5 @@
 using System;
-using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using ButtBot.Extentions;
 using Discord;

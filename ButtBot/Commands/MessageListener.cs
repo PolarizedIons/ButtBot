@@ -3,19 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using ButtBot.Database;
 using ButtBot.Exceptions;
 using ButtBot.Extentions;
 using ButtBot.Services;
 using ButtBot.Utils;
 using Discord;
-using Discord.Net;
 using Discord.WebSocket;
-using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
-using Serilog.Context;
 
 namespace ButtBot.Commands
 {
