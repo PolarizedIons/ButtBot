@@ -2,13 +2,13 @@ using System;
 using System.Reflection;
 using System.Threading.Tasks;
 using ButtBot.Extentions;
+using ButtBot.Utils;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
-using Serilog.Context;
 
 namespace ButtBot.Commands
 {
@@ -45,32 +45,11 @@ namespace ButtBot.Commands
 
         private async Task DiscordOnMessageReceived(SocketMessage message)
         {
-            using (LogContext.PushProperty("Author", message.Author))
+            await LogContextUtils.WithMessageContext(message, async () =>
             {
-                using (LogContext.PushProperty("AuthorId", message.Author.Id))
-                {
-                    using (LogContext.PushProperty("Message", message.Content))
-                    {
-                        using (LogContext.PushProperty("MessageId", message.Id))
-                        {
-                            using (LogContext.PushProperty("Channel", message.Channel.Name))
-                            {
-                                using (LogContext.PushProperty("ChannelId", message.Channel.Id))
-                                {
-                                    using (LogContext.PushProperty("Guild", (message.Channel as IGuildChannel)?.Guild.Name))
-                                    {
-                                        using (LogContext.PushProperty("GuildId", (message.Channel as IGuildChannel)?.Guild.Id))
-                                        {
-                                            await _messageListener.OnMessageReceived(message);
-                                            await HandleCommandAsync(message);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+                await _messageListener.OnMessageReceived(message);
+                await HandleCommandAsync(message);
+            });
         }
 
         private Task DiscordOnReady()
