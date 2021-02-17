@@ -56,7 +56,7 @@ namespace ButtBot.Services
 
         public async Task<ButtcoinAccount> MineCoin(string userId, bool isBruteForce)
         {
-            Log.Debug("{UserId} mined a buttcoin (bruteforce? {IsBruteForce}", userId, isBruteForce);
+            Log.Debug("{UserId} mined a buttcoin (bruteforce? {IsBruteForce})", userId, isBruteForce);
             var account = await GetOrCreateAccount(userId);
 
             account.Balance += 1;

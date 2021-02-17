@@ -12,19 +12,19 @@ namespace ButtBot.Utils
         {
             using (LogContext.PushProperty("Author", message.Author))
             {
-                using (LogContext.PushProperty("AuthorId", message.Author.Id))
+                using (LogContext.PushProperty("AuthorId", message.Author.Id.ToString()))
                 {
                     using (LogContext.PushProperty("Message", message.Content))
                     {
-                        using (LogContext.PushProperty("MessageId", message.Id))
+                        using (LogContext.PushProperty("MessageId", message.Id.ToString()))
                         {
                             using (LogContext.PushProperty("Channel", message.Channel.Name))
                             {
-                                using (LogContext.PushProperty("ChannelId", message.Channel.Id))
+                                using (LogContext.PushProperty("ChannelId", message.Channel.Id.ToString()))
                                 {
                                     using (LogContext.PushProperty("Guild", (message.Channel as IGuildChannel)?.Guild.Name))
                                     {
-                                        using (LogContext.PushProperty("GuildId", (message.Channel as IGuildChannel)?.Guild.Id))
+                                        using (LogContext.PushProperty("GuildId", (message.Channel as IGuildChannel)?.Guild.Id.ToString()))
                                         {
                                             await action.Invoke();
                                         }

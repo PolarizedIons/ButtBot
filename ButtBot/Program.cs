@@ -8,9 +8,11 @@ using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Events;
 using Serilog.Formatting.Json;
@@ -21,22 +23,7 @@ namespace ButtBot
     {
         public static async Task<int> Main(string[] args)
         {
-
-            var loggerBuilder = new LoggerConfiguration()
-                .MinimumLevel.Debug()
-                .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
-                .Enrich.FromLogContext();
-
-            if (Debugger.IsAttached)
-            {
-                loggerBuilder.WriteTo.Console();
-            }
-            else
-            {
-                loggerBuilder.WriteTo.Console(new JsonFormatter());
-                
-            }
-            Log.Logger = loggerBuilder.CreateLogger();
+            SetupLogging();
 
             try
             {
@@ -73,6 +60,10 @@ namespace ButtBot
                     {
                         var connectionString = hostCtx.Configuration.GetConnectionString("ButtBot");
                         opts.UseMySql(hostCtx.Configuration.GetConnectionString("ButtBot"), ServerVersion.AutoDetect(connectionString));
+                        opts.ConfigureWarnings(c => c.Log(
+                            (RelationalEventId.CommandExecuted, LogLevel.Debug),
+                            (CoreEventId.ContextInitialized, LogLevel.Debug)
+                        ));
                     });
 
                     services.AddSingleton(new DiscordSocketClient(
@@ -97,6 +88,34 @@ namespace ButtBot
                 })
                 .UseSerilog()
                 .UseConsoleLifetime();
+        }
+
+        private static void SetupLogging()
+        {
+            var logDir = Environment.GetEnvironmentVariable("LOG_DIR") ?? "./logs/";
+            var loggerBuilder = new LoggerConfiguration()
+                .MinimumLevel.Verbose()
+                .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+                .Enrich.FromLogContext()
+                .WriteTo.File(new JsonFormatter(), Path.Join(logDir, "log.txt"), rollingInterval: RollingInterval.Day, retainedFileCountLimit: 30);
+
+            if (Debugger.IsAttached)
+            {
+                loggerBuilder.WriteTo.Console();
+            }
+            else
+            {
+                loggerBuilder.WriteTo.Console(new JsonFormatter());
+            }
+
+            var seqUrl = Environment.GetEnvironmentVariable("SEQ_URL");
+            var seqApiKey = Environment.GetEnvironmentVariable("SEQ_API");
+            if (!string.IsNullOrEmpty(seqUrl))
+            {
+                loggerBuilder.WriteTo.Seq(seqUrl, apiKey: seqApiKey);
+            }
+
+            Log.Logger = loggerBuilder.CreateLogger();
         }
     }
 }
