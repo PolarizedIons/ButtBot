@@ -97,7 +97,7 @@ namespace ButtBot.Commands
         private Regex PickWord()
         {
             var word = _words.ElementAt(_random.Next(_words.Count()));
-            Log.Debug("Picked new word: {Word}", word);
+            Log.Debug("Picked new word: {Word}", word.ToString().Trim("\\b"));
             return word;
         }
     }
