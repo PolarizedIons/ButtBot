@@ -23,6 +23,7 @@ namespace ButtBot.Commands
         private Regex _word;
         private readonly Regex _plusPlus;
         private readonly Emote _emote;
+        private readonly string _botPrefix;
 
         public MessageListener(IConfiguration config, IServiceScopeFactory scopeFactory)
         {
@@ -32,7 +33,8 @@ namespace ButtBot.Commands
             _scopeFactory = scopeFactory;
             _random = new Random();
             _word = PickWord();
-            _plusPlus = new Regex("^" + config["Bot:Prefix"] + "(.+)\\+\\+$");
+            _botPrefix = config["Bot:Prefix"];
+            _plusPlus = new Regex("^" + _botPrefix + "(.+)\\+\\+$");
             _emote = Emote.Parse(config["Bot:Emote"]);
         }
 
@@ -79,7 +81,7 @@ namespace ButtBot.Commands
                 }
             }
             // Mine buttcoin
-            else if (_word.IsMatch(message.Content))
+            else if (!message.Content.StartsWith(_botPrefix) && _word.IsMatch(message.Content))
             {
                 _word = PickWord();
 
