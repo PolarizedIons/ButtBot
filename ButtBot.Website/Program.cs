@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 
-namespace ButtBot.API
+namespace ButtBot.Website
 {
     public class Program
     {

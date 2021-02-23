@@ -10,6 +10,7 @@ namespace ButtBot.Core.Database
         public DbSet<ButtcoinAccount> Accounts { get; set; } = null!;
         public DbSet<HolderAccount> HolderAccounts { get; set; } = null!;
         public DbSet<ButtcoinStats> Stats { get; set; } = null!;
+        public DbSet<LinkedAccounts> LinkedAccounts { get; set; } = null!;
 
         public DatabaseContext(DbContextOptions<DatabaseContext> options) : base(options)
         {

@@ -1,0 +1,12 @@
+@using System.Text.Json
+@model LinkedModel
+
+@{
+    ViewData["Title"] = "Linked Successfully!";
+}
+
+<h2>You are linked!</h2>
+
+@Model.User.Username#@Model.User.Discriminator, you have the following twitch connections!
+
+@JsonSerializer.Serialize(Model.Connections.Where(x => x.Type == "twitch"))

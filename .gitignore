@@ -6,5 +6,3 @@ riderModule.iml
 .idea/
 appsettings.Development.json
 logs/
-node_modules/
-*.min.css

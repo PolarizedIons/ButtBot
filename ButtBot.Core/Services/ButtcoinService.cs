@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using ButtBot.Core.Database;
 using ButtBot.Discord.Exceptions;
@@ -6,6 +7,7 @@ using ButtBot.Library.Extentions;
 using ButtBot.Library.Models;
 using ButtBot.Library.Models.Database;
 using Microsoft.EntityFrameworkCore;
+using RMQCommandService.Models;
 using Serilog;
 
 namespace ButtBot.Core.Services
@@ -78,10 +80,12 @@ namespace ButtBot.Core.Services
         public async Task MineCoin(string userId, BotPlatform platform, bool isBruteForce)
         {
             Log.Debug("{UserId} ({Platform}) mined a buttcoin (bruteforce? {IsBruteForce})", userId, platform.GetValueName(), isBruteForce);
-
-            if (platform == BotPlatform.Discord)
+            var linkedDiscordAccount = await GetLinkedAccount(userId, platform);
+            
+            if (platform == BotPlatform.Discord || linkedDiscordAccount != null)
             {
-                var account = await GetOrCreateAccount(userId);
+                var discordId = linkedDiscordAccount != null ? linkedDiscordAccount.DiscordUserId : userId;
+                var account = await GetOrCreateAccount(discordId);
 
                 account.Balance += 1;
                 account.Stats.AmountBruteforced += isBruteForce ? 1ul : 0ul;
@@ -92,9 +96,9 @@ namespace ButtBot.Core.Services
                 var account = await GetOrCreateHolderAccount(userId, platform);
 
                 account.AmountMined += 1;
-                account.AmountBruteforced += isBruteForce ? 1ul : 0ul;   
+                account.AmountBruteforced += isBruteForce ? 1ul : 0ul;
             }
-            
+
             await _db.SaveChangesAsync();
         }
 
@@ -145,6 +149,64 @@ namespace ButtBot.Core.Services
             await _db.SaveChangesAsync();
 
             return (fromAccount, toAccount);
+        }
+
+        public async Task<EmptyResponse> LinkAccounts(string discordId, BotPlatform platform, string platformId)
+        {
+            if (!await HolderAccountExists(platformId, platform))
+            {
+                Log.Debug("Tried to link non-existent holder account {PlatformId} ({Platform}) with buttcoin account {AccountId}", platformId, platform.GetValueName(), discordId);
+                return new EmptyResponse();
+            }
+
+            var account = await GetOrCreateAccount(discordId);
+            var holderAccount = await GetOrCreateHolderAccount(platformId, platform);
+
+            account.Balance += holderAccount.AmountMined;
+            account.Stats.AmountBruteforced += holderAccount.AmountBruteforced;
+
+            holderAccount.MarkDeleted();
+
+            await _db.LinkedAccounts.AddAsync(new LinkedAccounts
+            {
+                DiscordId = discordId,
+                Platform = platform,
+                PlatformId = platformId,
+            });
+            
+            await _db.SaveChangesAsync();
+
+            Log.Debug("Linked {PlatformId} ({Platform}) with buttcoin account {AccountId}", platformId, platform.GetValueName(), discordId);
+
+            return new EmptyResponse();
+        }
+
+        private async Task<bool> HolderAccountExists(string userId, BotPlatform platform)
+        {
+            if (platform == BotPlatform.Discord)
+            {
+                return false;
+            }
+
+            return await _db.HolderAccounts
+                .AnyAsync(x =>
+                    x.DeletedAt == null &&
+                    x.UserId == userId &&
+                    x.Platform == platform
+                );
+        }
+
+        private async Task<ButtcoinAccount?> GetLinkedAccount(string userId, BotPlatform platform)
+        {
+            return await _db.LinkedAccounts
+                .Where(x => x.DeletedAt == null && x.PlatformId == userId && x.Platform == platform)
+                .Join(
+                    _db.Accounts,
+                    linkedAccount => linkedAccount.DiscordId,
+                    buttcoinAccount => buttcoinAccount.DiscordUserId,
+                    (linkedAccount, buttcoinAccount) => buttcoinAccount
+                )
+                .FirstOrDefaultAsync();
         }
     }
 }

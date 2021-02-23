@@ -9,7 +9,8 @@ namespace ButtBot.Core.Consumers
     public class ButtcoinConsumer : IConsumer<GetOrCreateAccountRequest, ButtcoinAccount>,
         IConsumer<ActivateAccountRequest, ButtcoinAccount>,
         IConsumer<MineCoinRequest, EmptyResponse>,
-        IConsumer<TransferRequest, (ButtcoinAccount, ButtcoinAccount)>
+        IConsumer<TransferRequest, (ButtcoinAccount, ButtcoinAccount)>,
+        IConsumer<LinkAccountRequest, EmptyResponse>
     {
         private readonly ButtcoinService _buttcoinService;
 
@@ -37,6 +38,11 @@ namespace ButtBot.Core.Consumers
         public async Task<(ButtcoinAccount, ButtcoinAccount)> HandleCommand(TransferRequest command)
         {
             return await _buttcoinService.Transfer(command.FromUserId, command.ToUserId, command.Amount, command.Reason);
+        }
+
+        public async Task<EmptyResponse> HandleCommand(LinkAccountRequest command)
+        {
+            return await _buttcoinService.LinkAccounts(command.DiscordId, command.Platform, command.PlatformId);
         }
     }
 }
