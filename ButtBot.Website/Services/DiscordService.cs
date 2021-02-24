@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.Json;
@@ -31,6 +32,7 @@ namespace ButtBot.Website.Services
                 return (userInfo, null);
             }
             var connections = JsonSerializer.Deserialize<IEnumerable<Connection>>(await connectionsResp.Content.ReadAsStringAsync());
+            connections = connections.Where(x => x.Revoked == null || x.Revoked == false);
 
             return (userInfo, connections);
         }

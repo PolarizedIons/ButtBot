@@ -4,13 +4,19 @@
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>@ViewData["Title"] - ButtCoin.xyz</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap" rel="stylesheet"> 
     <link rel="stylesheet" href="~/css/site.css"/>
 </head>
 <body>
+<header>
+    <img src="~/img/buttcoin.png" alt="ButtCoin logo"/>
+    <h1>ButtCoin</h1>
+</header>
 
-@RenderBody()
-    
-<script src="~/js/site.js" asp-append-version="true"></script>
-@RenderSection("Scripts", required: false)
+<main>
+    @RenderBody()
+</main>
+
 </body>
 </html>

@@ -21,7 +21,7 @@ namespace ButtBot.Website.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            return Redirect("/link");
         }
 
         [HttpGet]
