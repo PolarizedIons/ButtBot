@@ -15,6 +15,7 @@ namespace ButtBot.Library
             var loggerBuilder = new LoggerConfiguration()
                 .MinimumLevel.Verbose()
                 .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+                .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
                 .Enrich.FromLogContext()
                 .WriteTo.File(new JsonFormatter(), Path.Join(logDir, "log.txt"), rollingInterval: RollingInterval.Day, retainedFileCountLimit: 30);
 

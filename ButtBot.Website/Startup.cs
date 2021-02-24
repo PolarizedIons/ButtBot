@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using RMQCommandService.Extentions;
+using Serilog;
 
 namespace ButtBot.Website
 {
@@ -38,6 +39,8 @@ namespace ButtBot.Website
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseSerilogRequestLogging();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -46,8 +49,8 @@ namespace ButtBot.Website
             {
                 app.UseExceptionHandler("/Error");
             }
-            app.UseStatusCodePagesWithReExecute("/StatusCode");
 
+            app.UseStatusCodePagesWithReExecute("/StatusCode");
             app.UseStaticFiles();
             app.UseRouting();
             app.UseEndpoints(endpoints =>
