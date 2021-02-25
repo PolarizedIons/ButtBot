@@ -5,9 +5,8 @@ on:
     branches: [ main ]
 
 jobs:
-  build-bot:
+  build-core:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -15,9 +14,61 @@ jobs:
       - name: Build Container & Publish to Github Registry
         uses: elgohr/Publish-Docker-Github-Action@2.14
         with:
-          name: polarizedions/buttbot/buttbot
+          name: polarizedions/buttbot/buttbot-core
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
           registry: docker.pkg.github.com
           tags: "latest"
-          dockerfile: ./ButtBot/Dockerfile
+          dockerfile: ./Dockerfile
+          buildargs: PROJECT=Core
+
+  build-discord:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Build Container & Publish to Github Registry
+        uses: elgohr/Publish-Docker-Github-Action@2.14
+        with:
+          name: polarizedions/buttbot/buttbot-discord
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          registry: docker.pkg.github.com
+          tags: "latest"
+          dockerfile: ./Dockerfile
+          buildargs: PROJECT=Discord
+          
+  build-twitch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Build Container & Publish to Github Registry
+        uses: elgohr/Publish-Docker-Github-Action@2.14
+        with:
+          name: polarizedions/buttbot/buttbot-twitch
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          registry: docker.pkg.github.com
+          tags: "latest"
+          dockerfile: ./Dockerfile
+          buildargs: PROJECT=Twitch
+
+  build-website:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Build Container & Publish to Github Registry
+        uses: elgohr/Publish-Docker-Github-Action@2.14
+        with:
+          name: polarizedions/buttbot/buttbot-website
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          registry: docker.pkg.github.com
+          tags: "latest"
+          dockerfile: ./Dockerfile
+          buildargs: PROJECT=Website

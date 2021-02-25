@@ -1,0 +1,22 @@
+@model LinkedModel
+
+@{
+    ViewData["Title"] = "Linked Successfully!";
+}
+
+<div class="green-block">
+    <h2>Sucessfully linked!</h2>
+    <div>
+        <div class="link">
+            <img src="~/img/discord.png"  alt="discord logo"/>
+            <span>@Model.User.Username#@Model.User.Discriminator</span>
+        </div>
+    @foreach (var link in Model.Connections)
+    {
+        <div class="link">
+            <img src="~/img/@(link.Type).png" alt="@(link.Type) logo">
+            <span>@link.Name</span>
+        </div>
+    }
+    </div>
+</div>
