@@ -69,6 +69,7 @@ namespace ButtBot.Core.Services
             var account = new HolderAccount
             {
                 UserId = userId,
+                Platform = platform,
             };
 
             await _db.HolderAccounts.AddAsync(account);
@@ -79,12 +80,13 @@ namespace ButtBot.Core.Services
 
         public async Task MineCoin(string userId, BotPlatform platform, bool isBruteForce)
         {
-            Log.Debug("{UserId} ({Platform}) mined a buttcoin (bruteforce? {IsBruteForce})", userId, platform.GetValueName(), isBruteForce);
             var linkedDiscordAccount = await GetLinkedAccount(userId, platform);
-            
+
             if (platform == BotPlatform.Discord || linkedDiscordAccount != null)
             {
                 var discordId = linkedDiscordAccount != null ? linkedDiscordAccount.DiscordUserId : userId;
+                Log.Debug("{UserId} ({Platform}) mined a buttcoin (bruteforce? {IsBruteForce}) in their buttcoin account ({DiscordId})", userId, platform.GetValueName(), isBruteForce, discordId);
+
                 var account = await GetOrCreateAccount(discordId);
 
                 account.Balance += 1;
@@ -93,6 +95,8 @@ namespace ButtBot.Core.Services
             }
             else
             {
+                Log.Debug("{UserId} ({Platform}) mined a buttcoin (bruteforce? {IsBruteForce}) in their holder account", userId, platform.GetValueName(), isBruteForce);
+
                 var account = await GetOrCreateHolderAccount(userId, platform);
 
                 account.AmountMined += 1;

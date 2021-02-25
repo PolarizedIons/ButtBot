@@ -19,7 +19,7 @@ namespace ButtBot.Discord
         public static async Task<int> Main(string[] args)
         {
             LogHelper.SetupLogging();
-            
+
             Log.Information("Staring ButtBot Discord Bot");
             try
             {
