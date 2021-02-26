@@ -167,18 +167,23 @@ namespace ButtBot.Core.Services
                 account.Stats.AmountBruteforced += holderAccount.AmountBruteforced;
 
                 holderAccount.MarkDeleted();
+
+                await _db.SaveChangesAsync();
             }
 
-            await _db.LinkedAccounts.AddAsync(new LinkedAccounts
+            if (!await LinkedAccountExists(discordId, platform, platformId))
             {
-                DiscordId = discordId,
-                Platform = platform,
-                PlatformId = platformId,
-            });
-            
-            await _db.SaveChangesAsync();
+                await _db.LinkedAccounts.AddAsync(new LinkedAccounts
+                {
+                    DiscordId = discordId,
+                    Platform = platform,
+                    PlatformId = platformId,
+                });
 
-            Log.Debug("Linked {PlatformId} ({Platform}) with buttcoin account {AccountId}", platformId, platform.GetValueName(), discordId);
+                await _db.SaveChangesAsync();
+
+                Log.Debug("Linked {PlatformId} ({Platform}) with buttcoin account {AccountId}", platformId, platform.GetValueName(), discordId);
+            }
 
             return new EmptyResponse();
         }
@@ -195,6 +200,22 @@ namespace ButtBot.Core.Services
                     x.DeletedAt == null &&
                     x.UserId == userId &&
                     x.Platform == platform
+                );
+        }
+
+        private async Task<bool> LinkedAccountExists(string discordId, BotPlatform platform, string platformId)
+        {
+            if (platform == BotPlatform.Discord)
+            {
+                return false;
+            }
+
+            return await _db.LinkedAccounts
+                .AnyAsync(x =>
+                    x.DeletedAt == null &&
+                    x.PlatformId == platformId &&
+                    x.Platform == platform &&
+                    x.DiscordId == discordId
                 );
         }
 
