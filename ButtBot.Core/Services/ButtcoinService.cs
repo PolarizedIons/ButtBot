@@ -157,19 +157,17 @@ namespace ButtBot.Core.Services
 
         public async Task<EmptyResponse> LinkAccounts(string discordId, BotPlatform platform, string platformId)
         {
-            if (!await HolderAccountExists(platformId, platform))
+            if (await HolderAccountExists(platformId, platform))
             {
-                Log.Debug("Tried to link non-existent holder account {PlatformId} ({Platform}) with buttcoin account {AccountId}", platformId, platform.GetValueName(), discordId);
-                return new EmptyResponse();
+                Log.Debug("Transferring buttcoins from {PlatformId} ({Platform}) to buttcoin account {AccountId}", platformId, platform.GetValueName(), discordId);
+                var account = await GetOrCreateAccount(discordId);
+                var holderAccount = await GetOrCreateHolderAccount(platformId, platform);
+
+                account.Balance += holderAccount.AmountMined;
+                account.Stats.AmountBruteforced += holderAccount.AmountBruteforced;
+
+                holderAccount.MarkDeleted();
             }
-
-            var account = await GetOrCreateAccount(discordId);
-            var holderAccount = await GetOrCreateHolderAccount(platformId, platform);
-
-            account.Balance += holderAccount.AmountMined;
-            account.Stats.AmountBruteforced += holderAccount.AmountBruteforced;
-
-            holderAccount.MarkDeleted();
 
             await _db.LinkedAccounts.AddAsync(new LinkedAccounts
             {
