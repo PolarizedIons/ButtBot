@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using ButtBot.Discord.Services;
 using ButtBot.Discord.Utils;
@@ -12,11 +13,13 @@ namespace ButtBot.Discord.Commands
     {
         private readonly ButtcoinService _buttcoinService;
         private readonly string _logoUrl;
+        private readonly string _linkUrl;
 
         public ButtcoinCommand(ButtcoinService buttcoinService, IConfiguration config)
         {
             _buttcoinService = buttcoinService;
             _logoUrl = config["Bot:LogoUrl"];
+            _linkUrl = config["Bot:LinkUrl"];
         }
 
         [Command("buttcoin balance")]
@@ -77,6 +80,24 @@ namespace ButtBot.Discord.Commands
             var (fromAccount, toAccount) = await _buttcoinService.Transfer(Context.Message.Author, toUser, 10, "Tip.");
 
             var embed = EmbedUtils.CreateTransferEmbed((IGuildUser) Context.User, toUser, fromAccount, toAccount, "Tip.", _logoUrl);
+            await ReplyAsync(embed: embed.Build());
+        }
+
+        [Command("buttcoin link")]
+        [Summary("Link discord-connections to your buttcoin account")]
+        public async Task Link()
+        {
+            var host = new Uri(_linkUrl).Host;
+
+            var embed = new EmbedBuilder()
+                .WithTitle($"Linking your buttcoin account - {host}")
+                .WithThumbnailUrl(_logoUrl)
+                .WithDescription("Link your discord connections to your buttcoin account, earning buttcoins wherever you go!")
+                .WithUrl(_linkUrl)
+                .WithColor(Color.Green)
+                .WithFooter("ButtBot", _logoUrl)
+                .WithCurrentTimestamp();
+
             await ReplyAsync(embed: embed.Build());
         }
     }
