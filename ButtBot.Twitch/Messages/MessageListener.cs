@@ -19,7 +19,7 @@ namespace ButtBot.Twitch.Messages
         private readonly Random _random;
         private IEnumerable<Regex>? _words;
         private Regex? _word;
-        private bool _isLive;
+        private Dictionary<string, bool> _liveChannels;
 
         public MessageListener(ConfigurationService configurationService, ButtcoinService buttcoinService, TwitchApi twitchApi)
         {
@@ -28,17 +28,17 @@ namespace ButtBot.Twitch.Messages
             _twitchApi = twitchApi;
             _random = new Random();
 
-            _isLive = twitchApi.IsTargetLive().Result;
+            _liveChannels = twitchApi.IsTargetsLive().Result;
             var isLiveTimer = new Timer();
             isLiveTimer.Elapsed += async (sender, args) =>
             {
-                _isLive = await twitchApi.IsTargetLive();
+                _liveChannels = await twitchApi.IsTargetsLive();
             };
-            isLiveTimer.Interval = TimeSpan.FromMinutes(5).TotalSeconds;
+            isLiveTimer.Interval = TimeSpan.FromMinutes(5).TotalMilliseconds;
             isLiveTimer.Enabled = true;
         }
 
-        public async Task OnReceive(string authorId, string message)
+        public async Task OnReceive(string channelId, string authorId, string message)
         {
             if (_words == null)
             {
@@ -49,7 +49,7 @@ namespace ButtBot.Twitch.Messages
 
             if (_word.IsMatch(message))
             {
-                if (!_isLive)
+                if (!_liveChannels[channelId])
                 {
                     if (Debugger.IsAttached)
                     {

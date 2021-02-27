@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using ButtBot.Library.Extentions;
 using ButtBot.Twitch.Messages;
 using Microsoft.Extensions.Configuration;
@@ -13,6 +14,7 @@ namespace ButtBot.Twitch.Services
     {
         private readonly MessageListener _messageListener;
         private readonly TwitchClient _client;
+        private readonly string[] _channelsToJoin;
 
         public TwitchService(IConfiguration config, MessageListener messageListener)
         {
@@ -20,8 +22,10 @@ namespace ButtBot.Twitch.Services
             var credentials = new ConnectionCredentials(config["Bot:Username"], config["Bot:AccessToken"]);
             var wsClient = new WebSocketClient();
             _client = new TwitchClient(wsClient);
-            _client.Initialize(credentials, config["Bot:ChannelName"]);
-            
+            _client.Initialize(credentials);
+
+            _channelsToJoin = config["Bot:ChannelNames"].Split(",");
+
             _client.OnJoinedChannel += ClientOnOnJoinedChannel;
             _client.OnMessageReceived += ClientOnOnMessageReceived;
         }
@@ -29,6 +33,13 @@ namespace ButtBot.Twitch.Services
         public void Start()
         {
             _client.Connect();
+            foreach (var channel in _channelsToJoin)
+            {
+                // If I don't wait, it doesn't join all channels >.>
+                Task.Delay(1000).Wait();
+                Log.Debug("Joining {Channel}", channel);
+                _client.JoinChannel(channel);
+            }
         }
 
         public void Stop()
@@ -43,7 +54,7 @@ namespace ButtBot.Twitch.Services
 
         private void ClientOnOnMessageReceived(object? client, OnMessageReceivedArgs e)
         {
-            _messageListener.OnReceive(e.ChatMessage.UserId, e.ChatMessage.Message).Wait();
+            _messageListener.OnReceive(e.ChatMessage.RoomId, e.ChatMessage.UserId, e.ChatMessage.Message).Wait();
         }
     }
 }
