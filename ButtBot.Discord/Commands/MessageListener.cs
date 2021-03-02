@@ -24,6 +24,7 @@ namespace ButtBot.Discord.Commands
         private readonly string _botPrefix;
         private IEnumerable<Regex>? _words;
         private Regex? _word;
+        private readonly Emote _emote;
 
         public MessageListener(IConfiguration config, ButtcoinService buttcoinService, ConfigurationService configurationService)
         {
@@ -33,6 +34,7 @@ namespace ButtBot.Discord.Commands
             _botPrefix = config["Bot:Prefix"];
             _plusPlus = new Regex("^" + _botPrefix + "(.+)\\+\\+$");
             _logoUrl = config["Bot:LogoUrl"];
+            _emote = Emote.Parse(config["Bot:RawEmoji"]);
         }
 
         public async Task OnMessageReceived(SocketMessage message)
@@ -64,8 +66,12 @@ namespace ButtBot.Discord.Commands
                         await _buttcoinService.ActivateAccount(message.Author);
                         var (fromAccount, toAccount) = await _buttcoinService.Transfer(message.Author, toUser, 1, "PlusPlus");
 
-                        var embed = EmbedUtils.CreateTransferEmbed((IGuildUser)message.Author, (IGuildUser) toUser, fromAccount, toAccount, 1, "PlusPlus", _logoUrl);
-                        await channel.SendMessageAsync(embed: embed.Build());
+                        var embed = EmbedUtils.CreateTransferEmbed((IGuildUser)message.Author, (IGuildUser) toUser, fromAccount, toAccount, 1, "PlusPlus", _logoUrl).Build();
+
+                        await DmUtils.SendDm(message.Author, embed);
+                        await DmUtils.SendDm(toUser, embed);
+
+                        await message.AddReactionAsync(_emote);
                         return;
                     }
                     catch (ButtcoinException ex)
