@@ -72,14 +72,14 @@ namespace ButtBot.Discord.Commands
 
         [Command("buttcoin tip")]
         [Summary("Transfer buttcoins from your account to someone else's")]
-        public async Task Transfer(IGuildUser toUser)
+        public async Task Transfer(IGuildUser toUser, [Remainder] string reason = "Tip.")
         {
             var fromUser = (IGuildUser)Context.Message.Author;
             await _buttcoinService.ActivateAccount(fromUser);
 
-            var (fromAccount, toAccount) = await _buttcoinService.Transfer(Context.Message.Author, toUser, 10, "Tip.");
+            var (fromAccount, toAccount) = await _buttcoinService.Transfer(Context.Message.Author, toUser, 10, reason);
 
-            var embed = EmbedUtils.CreateTransferEmbed((IGuildUser) Context.User, toUser, fromAccount, toAccount, 10, "Tip.", _logoUrl);
+            var embed = EmbedUtils.CreateTransferEmbed((IGuildUser) Context.User, toUser, fromAccount, toAccount, 10, reason, _logoUrl);
             await ReplyAsync(embed: embed.Build());
         }
 
