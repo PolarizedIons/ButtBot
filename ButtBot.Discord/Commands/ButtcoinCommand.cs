@@ -14,12 +14,14 @@ namespace ButtBot.Discord.Commands
         private readonly ButtcoinService _buttcoinService;
         private readonly string _logoUrl;
         private readonly string _linkUrl;
+        private readonly Emote _emote;
 
         public ButtcoinCommand(ButtcoinService buttcoinService, IConfiguration config)
         {
             _buttcoinService = buttcoinService;
             _logoUrl = config["Bot:LogoUrl"];
             _linkUrl = config["Bot:LinkUrl"];
+            _emote = Emote.Parse(config["Bot:RawEmoji"]);
         }
 
         [Command("buttcoin balance")]
@@ -66,8 +68,12 @@ namespace ButtBot.Discord.Commands
 
             var (fromAccount, toAccount) = await _buttcoinService.Transfer(Context.Message.Author, toUser, amount, reason);
 
-            var embed = EmbedUtils.CreateTransferEmbed((IGuildUser) Context.User, toUser, fromAccount, toAccount, amount, reason, _logoUrl);
-            await ReplyAsync(embed: embed.Build());
+            var embed = EmbedUtils.CreateTransferEmbed((IGuildUser) Context.User, toUser, fromAccount, toAccount, amount, reason, _logoUrl).Build();
+
+            await DmUtils.SendDm(fromUser, embed);
+            await DmUtils.SendDm(toUser, embed);
+
+            await Context.Message.AddReactionAsync(_emote);
         }
 
         [Command("buttcoin tip")]
@@ -78,9 +84,13 @@ namespace ButtBot.Discord.Commands
             await _buttcoinService.ActivateAccount(fromUser);
 
             var (fromAccount, toAccount) = await _buttcoinService.Transfer(Context.Message.Author, toUser, 10, reason);
+            
+            var embed = EmbedUtils.CreateTransferEmbed((IGuildUser) Context.User, toUser, fromAccount, toAccount, 10, reason, _logoUrl).Build();
 
-            var embed = EmbedUtils.CreateTransferEmbed((IGuildUser) Context.User, toUser, fromAccount, toAccount, 10, reason, _logoUrl);
-            await ReplyAsync(embed: embed.Build());
+            await DmUtils.SendDm(fromUser, embed);
+            await DmUtils.SendDm(toUser, embed);
+            
+            await Context.Message.AddReactionAsync(_emote);
         }
 
         [Command("buttcoin link")]
