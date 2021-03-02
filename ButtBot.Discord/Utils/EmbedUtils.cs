@@ -6,14 +6,15 @@ namespace ButtBot.Discord.Utils
 {
     public static class EmbedUtils
     {
-        public static EmbedBuilder CreateTransferEmbed(IGuildUser fromUser, IGuildUser toUser, ButtcoinAccount fromAccount, ButtcoinAccount toAccount, string reason, string logo)
+        public static EmbedBuilder CreateTransferEmbed(IGuildUser fromUser, IGuildUser toUser, ButtcoinAccount fromAccount, ButtcoinAccount toAccount, ulong amount, string reason, string logo)
         {
             return new EmbedBuilder()
                 .WithTitle("Buttcoin transfer report  ➡")
                 .WithThumbnailUrl(logo)
                 .AddField($"From: {fromUser.GetDisplayName()}", $"{fromAccount.Balance} buttcoins", true)
                 .AddField($"To: {toUser.GetDisplayName()}", $"{toAccount.Balance} buttcoins", true)
-                .AddField("Reason", reason, false)
+                .AddField("Amount", $"{amount} buttcoins", true)
+                .AddField("Reason", reason, true)
                 .WithColor(Color.Green)
                 .WithFooter("ButtBot", logo)
                 .WithCurrentTimestamp();

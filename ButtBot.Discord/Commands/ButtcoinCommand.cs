@@ -66,7 +66,7 @@ namespace ButtBot.Discord.Commands
 
             var (fromAccount, toAccount) = await _buttcoinService.Transfer(Context.Message.Author, toUser, amount, reason);
 
-            var embed = EmbedUtils.CreateTransferEmbed((IGuildUser) Context.User, toUser, fromAccount, toAccount, reason, _logoUrl);
+            var embed = EmbedUtils.CreateTransferEmbed((IGuildUser) Context.User, toUser, fromAccount, toAccount, amount, reason, _logoUrl);
             await ReplyAsync(embed: embed.Build());
         }
 
@@ -79,7 +79,7 @@ namespace ButtBot.Discord.Commands
 
             var (fromAccount, toAccount) = await _buttcoinService.Transfer(Context.Message.Author, toUser, 10, "Tip.");
 
-            var embed = EmbedUtils.CreateTransferEmbed((IGuildUser) Context.User, toUser, fromAccount, toAccount, "Tip.", _logoUrl);
+            var embed = EmbedUtils.CreateTransferEmbed((IGuildUser) Context.User, toUser, fromAccount, toAccount, 10, "Tip.", _logoUrl);
             await ReplyAsync(embed: embed.Build());
         }
 

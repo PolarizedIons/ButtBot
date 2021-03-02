@@ -64,7 +64,7 @@ namespace ButtBot.Discord.Commands
                         await _buttcoinService.ActivateAccount(message.Author);
                         var (fromAccount, toAccount) = await _buttcoinService.Transfer(message.Author, toUser, 1, "PlusPlus");
 
-                        var embed = EmbedUtils.CreateTransferEmbed((IGuildUser)message.Author, (IGuildUser) toUser, fromAccount, toAccount, "PlusPlus", _logoUrl);
+                        var embed = EmbedUtils.CreateTransferEmbed((IGuildUser)message.Author, (IGuildUser) toUser, fromAccount, toAccount, 1, "PlusPlus", _logoUrl);
                         await channel.SendMessageAsync(embed: embed.Build());
                         return;
                     }
