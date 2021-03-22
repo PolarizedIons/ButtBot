@@ -1,6 +1,4 @@
-using ButtBot.Library.Exceptions;
-
-namespace ButtBot.Discord.Exceptions
+namespace ButtBot.Library.Exceptions
 {
     public class AccountNotActive : ButtcoinException
     {

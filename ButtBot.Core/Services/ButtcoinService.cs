@@ -2,7 +2,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using ButtBot.Core.Database;
-using ButtBot.Discord.Exceptions;
+using ButtBot.Library.Exceptions;
 using ButtBot.Library.Extentions;
 using ButtBot.Library.Models;
 using ButtBot.Library.Models.Database;
@@ -123,6 +123,12 @@ namespace ButtBot.Core.Services
         {
             var fromAccount = await GetOrCreateAccount(fromUserId);
             var toAccount = await GetOrCreateAccount(toUserId);
+
+            if (amount == 0)
+            {
+                Log.Debug("Failed to transfer {Amount} from {FromUserId} to {ToUserId} with reason '{Reason}', because you cannot transfer nothing", amount, fromAccount.DiscordUserId, toAccount.DiscordUserId, reason);
+                throw new TransferZeroException();
+            }
 
             if (fromAccount.DiscordUserId == toAccount.DiscordUserId)
             {
